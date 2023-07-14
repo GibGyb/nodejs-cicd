@@ -7,14 +7,14 @@ on:
       - "v*.*.*"
 
 jobs:
-  build:
-    name: Test TypeScript code for event ${{ github.event_name }} on ${{ github.ref }}
-    strategy:
-      matrix:
-        nodeversion: [">=18.x", latest]
-        os: [ubuntu-latest, macos-latest]
+  test:
+    uses: ./.github/workflows/test.yaml
+    name: Test TypeScript code
 
-    runs-on: ${{ matrix.os }}
+  build:
+    name: Build and push Docker image
+    needs: test
+    runs-on: ubuntu-latest
     steps:
       - name: Checking out
         uses: actions/checkout@v3
@@ -32,4 +32,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/clockbox:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-cicd:latest
